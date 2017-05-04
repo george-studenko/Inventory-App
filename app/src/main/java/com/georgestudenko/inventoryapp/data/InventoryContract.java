@@ -7,7 +7,8 @@ import android.provider.BaseColumns;
  * Created by george on 04/05/2017.
  */
 
-public class InventoryContract {
+public final class InventoryContract {
+
     public final static class InventoryEntry implements BaseColumns {
         public final static String TABLE_NAME = "inventory";
         public final static String COLUMN_ID = BaseColumns._ID;
