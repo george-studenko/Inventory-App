@@ -85,6 +85,14 @@ public class InventoryProvider extends ContentProvider {
 
     @Override
     public int update(@NonNull Uri uri, @Nullable ContentValues values, @Nullable String selection, @Nullable String[] selectionArgs) {
-        return 0;
+        SQLiteDatabase db = mDbHelper.getWritableDatabase();
+
+        switch (mUriMatcher.match(uri)){
+            case ITEM_ID:
+                String[] ids = {String.valueOf(ContentUris.parseId(uri))};
+                return db.update(InventoryEntry.TABLE_NAME,values,InventoryEntry.COLUMN_ID + "=?",ids);
+            default:
+                throw new IllegalArgumentException("Not implemented uri: " + uri);
+        }
     }
 }
