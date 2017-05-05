@@ -11,6 +11,7 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 
 import com.georgestudenko.inventoryapp.data.InventoryContract.InventoryEntry;
+
 /**
  * Created by george on 04/05/2017.
  */
@@ -56,7 +57,15 @@ public class InventoryProvider extends ContentProvider {
     @Nullable
     @Override
     public Uri insert(@NonNull Uri uri, @Nullable ContentValues values) {
-        return null;
+        SQLiteDatabase db = mDbHelper.getWritableDatabase();
+
+        switch (mUriMatcher.match(uri)){
+            case ITEMS:
+                long id = db.insert(InventoryEntry.TABLE_NAME,null,values);
+                return ContentUris.withAppendedId(uri,id);
+            default:
+                throw new IllegalArgumentException("Not implemented uri: " + uri);
+        }
     }
 
     @Override
