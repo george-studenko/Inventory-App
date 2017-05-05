@@ -21,6 +21,9 @@ public class InventoryDbHelper extends SQLiteOpenHelper {
             InventoryEntry.COLUMN_PRODUCT_PRICE + " INTEGER NOT NULL,"+
             InventoryEntry.COLUMN_QUANTITY + " INTEGER NOT NULL)";
 
+    public final String SQL_DROP_INVENTORY_TABLE = "DROP TABLE IF EXISTS "+
+            InventoryEntry.TABLE_NAME;
+
     public InventoryDbHelper(Context context, String name, SQLiteDatabase.CursorFactory factory, int version) {
         super(context, name, factory, version);
     }
@@ -32,6 +35,7 @@ public class InventoryDbHelper extends SQLiteOpenHelper {
 
     @Override
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
-
+        db.execSQL(SQL_DROP_INVENTORY_TABLE);
+        onCreate(db);
     }
 }
