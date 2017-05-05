@@ -29,6 +29,14 @@ public class InventoryAdapter extends CursorAdapter {
 
     @Override
     public void bindView(View view, Context context, Cursor cursor) {
+        TextView name = (TextView) view.findViewById(R.id.itemName);
+        TextView qty = (TextView) view.findViewById(R.id.itemQuantity);
+        TextView price = (TextView) view.findViewById(R.id.itemPrice);
 
+        InventoryItem item = InventoryItem.parseInventoryItem(cursor);
+
+        name.setText(item.getName());
+        qty.setText(item.getQuantity());
+        price.setText(item.getFormattedPrice());
     }
 }
