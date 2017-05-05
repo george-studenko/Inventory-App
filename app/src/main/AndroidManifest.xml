@@ -18,10 +18,14 @@
         </activity>
         <activity android:name=".DetailsActivity">
         </activity>
+
         <provider
             android:name=".data.InventoryProvider"
             android:authorities="com.georgestudenko.inventoryapp"
-            android:exported="false" />
+            android:exported="false"/>
+
+        <activity android:name=".EditorActivity">
+        </activity>
     </application>
 
 </manifest>
