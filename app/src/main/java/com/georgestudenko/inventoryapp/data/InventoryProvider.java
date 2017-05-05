@@ -77,7 +77,7 @@ public class InventoryProvider extends ContentProvider {
                 return db.delete(InventoryEntry.TABLE_NAME,null,null);
             case ITEM_ID:
                 String[] ids = {String.valueOf(ContentUris.parseId(uri))};
-                return db.delete(InventoryEntry.TABLE_NAME,InventoryEntry._ID + "=?",ids);
+                return db.delete(InventoryEntry.TABLE_NAME,InventoryEntry.COLUMN_ID + "=?",ids);
             default:
                 throw new IllegalArgumentException("Not implemented uri: " + uri);
         }
