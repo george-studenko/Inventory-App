@@ -34,6 +34,15 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
         mAdapter = new InventoryAdapter(this, null,true);
         mListView.setAdapter(mAdapter);
 
+        mFab = (FloatingActionButton) findViewById(R.id.fab);
+
+        mFab.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(getBaseContext(),EditorActivity.class);
+                startActivity(intent);
+            }
+        });
     }
 
     @Override
