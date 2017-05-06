@@ -31,6 +31,9 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
         mEmptyListTextView = (TextView) findViewById(R.id.emptyList);
         mListView.setEmptyView(mEmptyListTextView);
 
+        mAdapter = new InventoryAdapter(this, null,true);
+        mListView.setAdapter(mAdapter);
+
     }
 
     @Override
