@@ -27,6 +27,10 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        mListView = (ListView) findViewById(R.id.listView);
+        mEmptyListTextView = (TextView) findViewById(R.id.emptyList);
+        mListView.setEmptyView(mEmptyListTextView);
+
     }
 
     @Override
