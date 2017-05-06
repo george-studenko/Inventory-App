@@ -5,7 +5,45 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context="com.georgestudenko.inventoryapp.EditorActivity">
+    tools:context="com.georgestudenko.inventoryapp.EditorActivity"
+    android:padding="10dp">
 
+    <EditText android:id="@+id/editorItemName"
+              android:layout_width="match_parent"
+              android:layout_height="wrap_content"
+              android:hint="Item Name"
+              android:layout_alignParentTop="true"
+              android:layout_alignParentLeft="true"
+              android:layout_alignParentStart="true"
+              android:layout_marginTop="10dp"/>
+
+    <EditText android:id="@+id/editorItemDescription"
+              android:layout_width="match_parent"
+              android:layout_height="wrap_content"
+              android:hint="Item Description"
+              android:layout_below="@+id/editorItemName"
+              android:layout_alignParentLeft="true"
+              android:layout_alignParentStart="true"
+              android:layout_marginTop="10dp"/>
+
+    <EditText android:id="@+id/editorItemPrice"
+              android:layout_width="match_parent"
+              android:layout_height="wrap_content"
+              android:hint="Price"
+              android:inputType="numberDecimal"
+              android:layout_below="@+id/editorItemDescription"
+              android:layout_alignParentLeft="true"
+              android:layout_alignParentStart="true"
+              android:layout_marginTop="10dp"/>
+
+    <EditText android:id="@+id/editorItemQuantity"
+              android:layout_width="match_parent"
+              android:layout_height="wrap_content"
+              android:hint="Stock Quantity"
+              android:inputType="number"
+              android:layout_marginTop="10dp"
+              android:layout_below="@+id/editorItemPrice"
+              android:layout_alignParentLeft="true"
+              android:layout_alignParentStart="true"/>
 
 </RelativeLayout>
