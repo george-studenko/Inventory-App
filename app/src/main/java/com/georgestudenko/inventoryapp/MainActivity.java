@@ -1,12 +1,27 @@
 package com.georgestudenko.inventoryapp;
 
+import android.content.Intent;
 import android.database.Cursor;
+import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.LoaderManager;
+import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.view.View;
+import android.widget.ListView;
+import android.widget.TextView;
+
+import com.georgestudenko.inventoryapp.data.InventoryAdapter;
+import com.georgestudenko.inventoryapp.data.InventoryContract;
 
 public class MainActivity extends AppCompatActivity implements LoaderManager.LoaderCallbacks<Cursor> {
+
+    private ListView mListView;
+    private InventoryAdapter mAdapter;
+    private TextView mEmptyListTextView;
+    private final int LOADER_ID = 200;
+    private FloatingActionButton mFab;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -16,7 +31,8 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
 
     @Override
     public Loader<Cursor> onCreateLoader(int id, Bundle args) {
-        return null;
+        return  new CursorLoader(this, InventoryContract.InventoryEntry.CONTENT_URI,
+                null,null,null, InventoryContract.InventoryEntry.COLUMN_PRODUCT_NAME);
     }
 
     @Override
