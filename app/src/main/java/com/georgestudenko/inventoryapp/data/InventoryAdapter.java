@@ -36,17 +36,31 @@ public class InventoryAdapter extends CursorAdapter {
     }
 
     @Override
-    public void bindView(View view, Context context, Cursor cursor) {
+    public void bindView(View view, Context context, final Cursor cursor) {
         TextView name = (TextView) view.findViewById(R.id.itemName);
         TextView qty = (TextView) view.findViewById(R.id.itemQuantity);
         TextView price = (TextView) view.findViewById(R.id.itemPrice);
         ImageButton sellButton = (ImageButton)view.findViewById(R.id.sellListButton);
 
-        InventoryItem item = InventoryItem.parseInventoryItem(cursor);
+        final InventoryItem item = InventoryItem.parseInventoryItem(cursor);
 
         name.setText(item.getName());
-        qty.setText(item.getQuantity());
+        qty.setText(String.valueOf(item.getQuantity()));
         price.setText(item.getFormattedPrice());
+
+        if(item.getQuantity()<=0){
+            sellButton.setImageResource(R.drawable.cash_disabled);
+            name.setTextColor(Color.RED);
+            qty.setTextColor(Color.RED);
+            price.setTextColor(Color.RED);
+
+        }else {
+            sellButton.setImageResource(R.drawable.cash);
+            name.setTextColor(Color.DKGRAY);
+            qty.setTextColor(Color.DKGRAY);
+            price.setTextColor(Color.DKGRAY);
+        }
+
         sellButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
