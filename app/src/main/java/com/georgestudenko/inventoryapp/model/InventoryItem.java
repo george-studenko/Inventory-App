@@ -1,9 +1,9 @@
 package com.georgestudenko.inventoryapp.model;
 
 import android.database.Cursor;
+import android.net.Uri;
 
-import com.georgestudenko.inventoryapp.R;
-import com.georgestudenko.inventoryapp.data.InventoryContract;
+import com.georgestudenko.inventoryapp.data.InventoryContract.InventoryEntry;
 
 import java.text.DecimalFormat;
 
@@ -17,14 +17,20 @@ public class InventoryItem {
     private String mDescription;
     private int mQuantity;
     private int mPrice;
+    private Uri mPhoto;
     private long mId;
 
-    public InventoryItem(String name, String description, int quantity, int price, long id) {
+    public InventoryItem(String name, String description, int quantity, int price, long id, Uri photo) {
         mName = name;
         mDescription = description;
         mQuantity = quantity;
         mPrice = price;
         mId = id;
+        mPhoto = photo;
+    }
+
+    public Uri getPhoto() {
+        return mPhoto;
     }
 
     public String getName() {
@@ -55,11 +61,13 @@ public class InventoryItem {
 
     public static InventoryItem parseInventoryItem(Cursor cursor){
         if(cursor!=null) {
-            InventoryItem item = new InventoryItem(cursor.getString(cursor.getColumnIndex(InventoryContract.InventoryEntry.COLUMN_PRODUCT_NAME)),
-                    cursor.getString(cursor.getColumnIndex(InventoryContract.InventoryEntry.COLUMN_PRODUCT_DESCRIPTION)),
-                    cursor.getInt(cursor.getColumnIndex(InventoryContract.InventoryEntry.COLUMN_QUANTITY)),
-                    cursor.getInt(cursor.getColumnIndex(InventoryContract.InventoryEntry.COLUMN_PRODUCT_PRICE)),
-                    cursor.getInt(cursor.getColumnIndex(InventoryContract.InventoryEntry.COLUMN_ID)));
+
+            InventoryItem item = new InventoryItem(cursor.getString(cursor.getColumnIndex(InventoryEntry.COLUMN_PRODUCT_NAME)),
+                    cursor.getString(cursor.getColumnIndex(InventoryEntry.COLUMN_PRODUCT_DESCRIPTION)),
+                    cursor.getInt(cursor.getColumnIndex(InventoryEntry.COLUMN_QUANTITY)),
+                    cursor.getInt(cursor.getColumnIndex(InventoryEntry.COLUMN_PRODUCT_PRICE)),
+                    cursor.getInt(cursor.getColumnIndex(InventoryEntry.COLUMN_ID)),
+                    Uri.parse(cursor.getString(cursor.getColumnIndex(InventoryEntry.COLUMN_PRODUCT_PHOTO_URI))));
             return item;
         }else{
             return null;
