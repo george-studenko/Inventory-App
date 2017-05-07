@@ -66,6 +66,7 @@ public class InventoryProvider extends ContentProvider {
         switch (mUriMatcher.match(uri)){
             case ITEMS:
                 long id = db.insert(InventoryEntry.TABLE_NAME,null,values);
+                getContext().getContentResolver().notifyChange(uri,null);
                 return ContentUris.withAppendedId(uri,id);
             default:
                 throw new IllegalArgumentException("Not implemented uri: " + uri);
