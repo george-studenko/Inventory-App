@@ -9,22 +9,59 @@
     tools:context="com.georgestudenko.inventoryapp.EditorActivity"
     android:padding="10dp">
 
+    <LinearLayout
+        android:orientation="horizontal"
+        android:id="@+id/addImagePanel"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center">
+        <ImageView
+            android:paddingRight="20dp"
+            android:id="@+id/openCameraIcon"
+            android:onClick="openCamera"
+            android:layout_width="wrap_content"
+            android:layout_height="48dp"
+            android:scaleType="centerCrop"
+            app:srcCompat="@drawable/ic_add_a_photo_black_48dp"
+            android:layout_alignParentTop="true"
+            android:layout_centerHorizontal="true"/>
+
+        <ImageView
+            android:paddingLeft="20dp"
+            android:onClick="openGallery"
+            android:id="@+id/openGalleryIcon"
+            android:layout_width="wrap_content"
+            android:layout_height="48dp"
+            android:scaleType="centerCrop"
+            app:srcCompat="@drawable/ic_photo_library_black_48dp"
+            android:layout_alignParentTop="true"
+            android:layout_centerHorizontal="true"/>
+    </LinearLayout>
+
+    <ImageView
+        android:id="@+id/itemPicture"
+        android:layout_width="match_parent"
+        android:layout_height="300dp"
+        android:scaleType="centerCrop"
+        app:srcCompat="@drawable/placeholder_image"
+        android:layout_alignParentTop="true"
+        android:layout_centerHorizontal="true"/>
+
     <EditText android:id="@+id/editorItemName"
               android:layout_width="match_parent"
               android:layout_height="wrap_content"
               android:hint="Item Name"
-              android:layout_alignParentTop="true"
+              android:layout_below="@+id/itemPicture"
               android:layout_alignParentLeft="true"
-              android:layout_alignParentStart="true"
               android:layout_marginTop="10dp"/>
 
     <EditText android:id="@+id/editorItemDescription"
               android:layout_width="match_parent"
               android:layout_height="wrap_content"
               android:hint="Item Description"
+              android:lines="2"
               android:layout_below="@+id/editorItemName"
               android:layout_alignParentLeft="true"
-              android:layout_alignParentStart="true"
               android:layout_marginTop="10dp"/>
 
     <EditText android:id="@+id/editorItemPrice"
