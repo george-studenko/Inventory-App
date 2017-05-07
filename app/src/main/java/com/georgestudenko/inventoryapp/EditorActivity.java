@@ -1,5 +1,6 @@
 package com.georgestudenko.inventoryapp;
 
+import android.Manifest;
 import android.content.ContentValues;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -14,7 +15,9 @@ import android.os.Build;
 import android.os.Environment;
 import android.os.ParcelFileDescriptor;
 import android.provider.MediaStore;
+import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.LoaderManager;
+import android.support.v4.content.ContextCompat;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.FileProvider;
 import android.support.v4.content.Loader;
@@ -69,6 +72,7 @@ public class EditorActivity extends AppCompatActivity implements LoaderManager.L
     private final String LOG_TAG ="INVENTORY_APP";
     private final String CAMERA_DIR = "/dcim/";
     private final String JPEG_FILE_PREFIX = "INV_IMG_";
+    private static final int MY_PERMISSIONS_REQUEST = 2;
     private final String JPEG_FILE_EXTENSION = ".jpg";
     private Uri mPhotoUri;
     private boolean mPhotoLoaded;
@@ -97,6 +101,7 @@ public class EditorActivity extends AppCompatActivity implements LoaderManager.L
         }else{
             mEditorActions.setVisibility(View.GONE);
         }
+        requestPermissions();
     }
 
     @Override
@@ -396,6 +401,42 @@ public class EditorActivity extends AppCompatActivity implements LoaderManager.L
         File albumF = getAlbumDir();
         File imageF = File.createTempFile(imageFileName, JPEG_FILE_EXTENSION, albumF);
         return imageF;
+    }
+
+    public void requestPermissions() {
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED ||
+                ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED ) {
+
+            // Should we show an explanation?
+            if (ActivityCompat.shouldShowRequestPermissionRationale(this, Manifest.permission.READ_EXTERNAL_STORAGE) ||
+                    ActivityCompat.shouldShowRequestPermissionRationale(this, Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
+            } else {
+                    ActivityCompat.requestPermissions(this,
+                        new String[]{Manifest.permission.READ_EXTERNAL_STORAGE,
+                                Manifest.permission.WRITE_EXTERNAL_STORAGE},
+                        MY_PERMISSIONS_REQUEST);
+            }
+        }
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode,
+                                           String permissions[], int[] grantResults) {
+        switch (requestCode) {
+            case MY_PERMISSIONS_REQUEST: {
+                // If request is cancelled, the result arrays are empty.
+                if (grantResults.length > 0
+                        && grantResults[0] == PackageManager.PERMISSION_GRANTED
+                        && grantResults[1] == PackageManager.PERMISSION_GRANTED) {
+
+                    mOpenCameraIcon.setVisibility(View.VISIBLE);
+                } else {
+
+                    mOpenCameraIcon.setVisibility(View.GONE);
+                }
+                return;
+            }
+        }
     }
 
     public void openCamera(View v) {
