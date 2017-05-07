@@ -10,6 +10,9 @@
         android:layout_height="wrap_content"/>
     <TextView
         android:id="@+id/emptyList"
+        android:text="There are no items on the inventory, to add one please use the + button below"
+        android:textSize="20sp"
+        android:textAlignment="center"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_centerInParent="true"/>
