@@ -1,5 +1,17 @@
 <resources>
     <string name="app_name">Inventory App</string>
-    <string name="save_item">Save</string>
-    <string name="delete_item">Delete</string>
+    <string name="save_item">Save Item</string>
+    <string name="delete_item">Delete Item</string>
+    <string name="fill_item_name">Please fill in the Item Name</string>
+    <string name="currency_symbol">"€ "</string>
+    <string name="edit_item">Edit Item</string>
+    <string name="item_deleted">Item deleted</string>
+    <string name="delete_error">Could not delete the item</string>
+    <string name="how_many_items_sell">How many items do you want to sell?</string>
+    <string name="track_sale">Track Sale</string>
+    <string name="sell">Sell</string>
+    <string name="cancel">Cancel</string>
+    <string name="how_many_items">How many items does the shipment contain?</string>
+    <string name="receive_shipment">Receive a shipment</string>
+    <string name="receive_order">Receive Order</string>
 </resources>
