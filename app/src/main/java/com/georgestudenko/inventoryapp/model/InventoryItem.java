@@ -48,7 +48,9 @@ public class InventoryItem {
     }
     public String getPriceToShow(){ return String.valueOf(mPrice/100.0); }
     public String getFormattedPrice(){
-        return "$ " + mPrice/100;
+        DecimalFormat df = new DecimalFormat("0.00##");
+        String result = df.format(mPrice/100.0);
+        return "€ " + result;
     }
 
     public static InventoryItem parseInventoryItem(Cursor cursor){
