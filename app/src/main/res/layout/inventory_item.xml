@@ -26,6 +26,16 @@
         android:layout_height="wrap_content"
         tools:text="$19.99"
         android:gravity="right"
+
+    <ImageButton
+        android:focusable="false"
+        android:focusableInTouchMode="false"
+        android:id="@+id/sellListButton"
+        android:src="@drawable/cash"
+        android:background="@android:color/transparent"
+        android:layout_width="12dp"
+        android:layout_height="20dp"
+        android:scaleType="center"
         android:layout_weight="1"/>
 
 </LinearLayout>
