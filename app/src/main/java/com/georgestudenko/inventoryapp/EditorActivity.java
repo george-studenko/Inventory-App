@@ -163,9 +163,7 @@ public class EditorActivity extends AppCompatActivity implements LoaderManager.L
         ContentValues cv = new ContentValues();
         String name  =  mItemName.getText().toString();
         String description = mItemDescription.getText().toString();
-        int price = convertPriceToStore(mItemPrice.getText());
 
-        int quantity = !TextUtils.isEmpty(mItemQuantity.getText()) ? Integer.valueOf(mItemQuantity.getText().toString()) : 0;
 
         if(TextUtils.isEmpty(name)){
             Toast.makeText(this, R.string.fill_item_name, Toast.LENGTH_LONG).show();
@@ -175,11 +173,30 @@ public class EditorActivity extends AppCompatActivity implements LoaderManager.L
             return;
         }
 
+        if(TextUtils.isEmpty(mItemPrice.getText())){
+            Toast.makeText(this, "Please fill in the Item Price", Toast.LENGTH_LONG).show();
+            mItemPrice.setHintTextColor(Color.RED);
+            Animation shake = AnimationUtils.loadAnimation(this, R.anim.shake);
+            mItemPrice.startAnimation(shake);
+            return;
+        }
+
+        if(TextUtils.isEmpty(mItemQuantity.getText())){
+            Toast.makeText(this, "Please fill in the Item Quantity", Toast.LENGTH_LONG).show();
+            mItemQuantity.setHintTextColor(Color.RED);
+            Animation shake = AnimationUtils.loadAnimation(this, R.anim.shake);
+            mItemQuantity.startAnimation(shake);
+            return;
+        }
+
         if(!mPhotoLoaded){
             Toast.makeText(this, "Please add an image for the item", Toast.LENGTH_LONG).show();
             mAddImagePanel.setBackgroundColor(Color.rgb(255,148,148));
             return;
         }
+
+        int price = convertPriceToStore(mItemPrice.getText());
+        int quantity = Integer.valueOf(mItemQuantity.getText().toString());
 
         cv.put(InventoryEntry.COLUMN_PRODUCT_NAME,name);
         cv.put(InventoryEntry.COLUMN_PRODUCT_DESCRIPTION,description);
