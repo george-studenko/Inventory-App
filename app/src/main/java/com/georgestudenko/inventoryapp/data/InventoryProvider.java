@@ -36,16 +36,20 @@ public class InventoryProvider extends ContentProvider {
     @Override
     public Cursor query(@NonNull Uri uri, @Nullable String[] projection, @Nullable String selection, @Nullable String[] selectionArgs, @Nullable String sortOrder) {
         SQLiteDatabase db = mDbHelper.getReadableDatabase();
-
+        Cursor cursor;
         switch (mUriMatcher.match(uri)){
             case ITEMS:
-                return db.query(InventoryEntry.TABLE_NAME,projection,null,null,null,null,sortOrder);
+                cursor =  db.query(InventoryEntry.TABLE_NAME,projection,null,null,null,null,sortOrder);
+                break;
             case ITEM_ID:
                 String[] ids = {String.valueOf(ContentUris.parseId(uri))};
-                return db.query(InventoryEntry.TABLE_NAME,projection,InventoryEntry._ID + "=?",ids,null,null,sortOrder);
+                cursor =  db.query(InventoryEntry.TABLE_NAME,projection,InventoryEntry._ID + "=?",ids,null,null,sortOrder);
+                break;
             default:
                 throw new IllegalArgumentException("Not implemented uri: " + uri);
         }
+        cursor.setNotificationUri(getContext().getContentResolver(), uri);
+        return cursor;
     }
 
     @Nullable
