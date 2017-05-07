@@ -46,7 +46,7 @@ public class InventoryItem {
     public int getPrice() {
         return mPrice;
     }
-
+    public String getPriceToShow(){ return String.valueOf(mPrice/100.0); }
     public String getFormattedPrice(){
         return "$ " + mPrice/100;
     }
