@@ -14,4 +14,5 @@
     <string name="how_many_items">How many items does the shipment contain?</string>
     <string name="receive_shipment">Receive a shipment</string>
     <string name="receive_order">Receive Order</string>
+    <string name="stock_0">Impossible to make a sale stock is 0</string>
 </resources>

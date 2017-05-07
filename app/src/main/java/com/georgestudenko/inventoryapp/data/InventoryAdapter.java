@@ -70,7 +70,7 @@ public class InventoryAdapter extends CursorAdapter {
                     v.getContext().getContentResolver().update(ContentUris.withAppendedId(InventoryContract.InventoryEntry.CONTENT_URI, item.getId()), cv, null, null);
                     Toast.makeText(v.getContext(),"Sold 1 unit of " + item.getName() +" for "+ item.getFormattedPrice(),Toast.LENGTH_SHORT).show();
                 }else{
-                    Toast.makeText(v.getContext(),"Impossible to make a sale stock is 0",Toast.LENGTH_SHORT).show();
+                    Toast.makeText(v.getContext(), R.string.stock_0,Toast.LENGTH_SHORT).show();
                 }
             }
         });
