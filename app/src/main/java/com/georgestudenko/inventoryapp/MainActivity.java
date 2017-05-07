@@ -12,6 +12,7 @@ import android.view.View;
 import android.widget.ListView;
 import android.widget.TextView;
 
+import com.facebook.stetho.Stetho;
 import com.georgestudenko.inventoryapp.data.InventoryAdapter;
 import com.georgestudenko.inventoryapp.data.InventoryContract;
 
@@ -27,6 +28,8 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        Stetho.initializeWithDefaults(this);
+
         mListView = (ListView) findViewById(R.id.listView);
         mEmptyListTextView = (TextView) findViewById(R.id.emptyList);
         mListView.setEmptyView(mEmptyListTextView);
