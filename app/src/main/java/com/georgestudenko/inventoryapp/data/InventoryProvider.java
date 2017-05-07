@@ -99,7 +99,9 @@ public class InventoryProvider extends ContentProvider {
         switch (mUriMatcher.match(uri)){
             case ITEM_ID:
                 String[] ids = {String.valueOf(ContentUris.parseId(uri))};
-                return db.update(InventoryEntry.TABLE_NAME,values,InventoryEntry.COLUMN_ID + "=?",ids);
+                int updatedRows = db.update(InventoryEntry.TABLE_NAME,values,InventoryEntry.COLUMN_ID + "=?",ids);
+                getContext().getContentResolver().notifyChange(uri,null);
+                return  updatedRows;
             default:
                 throw new IllegalArgumentException("Not implemented uri: " + uri);
         }
