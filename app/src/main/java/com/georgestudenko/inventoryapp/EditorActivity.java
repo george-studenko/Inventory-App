@@ -3,11 +3,16 @@ package com.georgestudenko.inventoryapp;
 import android.content.ContentValues;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.pm.PackageManager;
+import android.content.pm.ResolveInfo;
 import android.database.Cursor;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Environment;
+import android.os.ParcelFileDescriptor;
 import android.provider.MediaStore;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
@@ -34,9 +39,11 @@ import com.georgestudenko.inventoryapp.data.InventoryContract.InventoryEntry;
 import com.georgestudenko.inventoryapp.model.InventoryItem;
 
 import java.io.File;
+import java.io.FileDescriptor;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.List;
 
 public class EditorActivity extends AppCompatActivity implements LoaderManager.LoaderCallbacks<Cursor>{
 
@@ -45,6 +52,7 @@ public class EditorActivity extends AppCompatActivity implements LoaderManager.L
     private EditText mItemPrice;
     private EditText mItemQuantity;
     private LinearLayout mEditorActions;
+    private LinearLayout mAddImagePanel;
     private int mTotalQuantity;
     private int mStockMovement;
     private TextView mSellQuantity;
@@ -53,10 +61,18 @@ public class EditorActivity extends AppCompatActivity implements LoaderManager.L
     private boolean mSelling;
     private InventoryItem mItem;
     private ImageView mItemPicture;
+    private ImageView mOpenCameraIcon;
     private Bitmap mImageBitmap;
-    private String mCurrentPhotoPath;
     static final int REQUEST_IMAGE_CAPTURE = 1;
     static final int SELECT_IMAGE_FROM_GALLERY = 2;
+    private final String FILE_PROVIDER_AUTHORITY = "com.georgestudenko.fileprovider";
+    private final String LOG_TAG ="INVENTORY_APP";
+    private final String CAMERA_DIR = "/dcim/";
+    private final String JPEG_FILE_PREFIX = "INV_IMG_";
+    private final String JPEG_FILE_EXTENSION = ".jpg";
+    private Uri mPhotoUri;
+    private boolean mPhotoLoaded;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -68,9 +84,13 @@ public class EditorActivity extends AppCompatActivity implements LoaderManager.L
         mItemQuantity =  (EditText) findViewById(R.id.editorItemQuantity);
         mEditorActions = (LinearLayout) findViewById(R.id.editorActions);
         mItemPicture = (ImageView) findViewById(R.id.itemPicture);
+        mOpenCameraIcon = (ImageView) findViewById(R.id.openCameraIcon);
+        mAddImagePanel = (LinearLayout) findViewById(R.id.addImagePanel);
         mStockMovement = 0;
+        mPhotoLoaded = false;
 
         if(getIntent().getData()!=null){
+            mPhotoLoaded = true;
             setTitle(getString(R.string.edit_item));
             mEditorActions.setVisibility(View.VISIBLE);
             loadItem();
@@ -108,6 +128,21 @@ public class EditorActivity extends AppCompatActivity implements LoaderManager.L
         return false;
     }
 
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        outState.putParcelable("thumbnail", mImageBitmap);
+    }
+
+    @Override
+    protected void onRestoreInstanceState(Bundle savedInstanceState) {
+        super.onRestoreInstanceState(savedInstanceState);
+        if(savedInstanceState.containsKey("thumbnail")) {
+            mImageBitmap = savedInstanceState.getParcelable("thumbnail");
+            mItemPicture.setImageBitmap(mImageBitmap);
+        }
+    }
+
     private int convertPriceToStore(CharSequence price){
         int convertedPrice = 0;
 
@@ -135,10 +170,18 @@ public class EditorActivity extends AppCompatActivity implements LoaderManager.L
             return;
         }
 
+        if(!mPhotoLoaded){
+            Toast.makeText(this, "Please add an image for the item", Toast.LENGTH_LONG).show();
+            mAddImagePanel.setBackgroundColor(Color.rgb(255,148,148));
+            return;
+        }
+
         cv.put(InventoryEntry.COLUMN_PRODUCT_NAME,name);
         cv.put(InventoryEntry.COLUMN_PRODUCT_DESCRIPTION,description);
         cv.put(InventoryEntry.COLUMN_PRODUCT_PRICE,price);
         cv.put(InventoryEntry.COLUMN_QUANTITY,quantity);
+        cv.put(InventoryEntry.COLUMN_PRODUCT_PHOTO_URI,mPhotoUri.toString());
+
         if(getIntent().getData()==null) {
             getContentResolver().insert(InventoryEntry.CONTENT_URI, cv);
             Toast.makeText(this,"Item "+name+" added!",Toast.LENGTH_SHORT).show();
@@ -148,6 +191,28 @@ public class EditorActivity extends AppCompatActivity implements LoaderManager.L
             Toast.makeText(this,"Item "+name+" updated!",Toast.LENGTH_SHORT).show();
         }
         finish();
+    }
+
+    private void showDeleteItemDialog(){
+        dialogBuilder = new AlertDialog.Builder(this);
+        dialogBuilder.setTitle("Delete Item");
+        dialogBuilder.setMessage("Are you sure you want to delete the item: "+ mItem.getName()+"?");
+
+        dialogBuilder.setPositiveButton("Delete Item", new DialogInterface.OnClickListener() {
+
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                deleteItem();
+            }
+        });
+
+        dialogBuilder.setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                dialog.cancel();
+            }
+        });
+        dialogBuilder.show();
     }
 
     private void deleteItem(){
@@ -183,6 +248,8 @@ public class EditorActivity extends AppCompatActivity implements LoaderManager.L
         mItemPrice.setText(mItem.getPriceToShow());
         mItemQuantity.setText(String.valueOf(mItem.getQuantity()));
         mTotalQuantity = mItem.getQuantity();
+        Bitmap bitmap = getBitmapFromUri(mItem.getPhoto());
+        mItemPicture.setImageBitmap(bitmap);
     }
 
     @Override
@@ -263,28 +330,6 @@ public class EditorActivity extends AppCompatActivity implements LoaderManager.L
         dialogBuilder.show();
     }
 
-    private void showDeleteItemDialog(){
-        dialogBuilder = new AlertDialog.Builder(this);
-        dialogBuilder.setTitle("Delete Item");
-        dialogBuilder.setMessage("Are you sure you want to delete the item: "+ mItem.getName()+"?");
-
-        dialogBuilder.setPositiveButton("Delete Item", new DialogInterface.OnClickListener() {
-
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                deleteItem();
-            }
-        });
-
-        dialogBuilder.setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                dialog.cancel();
-            }
-        });
-        dialogBuilder.show();
-    }
-
     public void decreaseNumber(View view) {
         if(mStockMovement >0){
             mStockMovement--;
@@ -317,26 +362,90 @@ public class EditorActivity extends AppCompatActivity implements LoaderManager.L
         }
     }
 
+    private File getAlbumDir() {
+        File storageDir = null;
 
-    public void openCamera(View v) {
-        System.out.println("<<<<<<<<<  OPEN CAMERA   >>>>>>>>>>>");
-        Intent takePictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-        if (takePictureIntent.resolveActivity(getPackageManager()) != null) {
-            // Create the File where the photo should go
-            File photoFile = null;
-            try {
-                photoFile = createImageFile();
-            } catch (IOException ex) {
-                // Error occurred while creating the File
+        if (Environment.MEDIA_MOUNTED.equals(Environment.getExternalStorageState())) {
 
+            storageDir = new File(Environment.getExternalStorageDirectory()
+                    + CAMERA_DIR
+                    + getString(R.string.app_name));
+
+            Log.d(LOG_TAG, "Dir: " + storageDir);
+
+            if (storageDir != null) {
+                if (!storageDir.mkdirs()) {
+                    if (!storageDir.exists()) {
+                        Log.d(LOG_TAG, "failed to create directory");
+                        return null;
+                    }
+                }
             }
 
-            if (photoFile != null) {
-                Uri photoURI = FileProvider.getUriForFile(this,
-                        "com.georgestudenko.fileprovider",
-                        photoFile);
-                takePictureIntent.putExtra(MediaStore.EXTRA_OUTPUT, photoURI);
+        } else {
+            Log.v(getString(R.string.app_name), "External storage is not mounted READ/WRITE.");
+        }
+
+        return storageDir;
+    }
+
+    private File createImageFile() throws IOException {
+        // Create an image file name
+        String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
+        String imageFileName = JPEG_FILE_PREFIX + timeStamp + "_";
+        File albumF = getAlbumDir();
+        File imageF = File.createTempFile(imageFileName, JPEG_FILE_EXTENSION, albumF);
+        return imageF;
+    }
+
+    public void openCamera(View v) {
+        Intent takePictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+
+        try {
+            File f = createImageFile();
+
+            mPhotoUri = FileProvider.getUriForFile(
+                    this, FILE_PROVIDER_AUTHORITY, f);
+
+            takePictureIntent.putExtra(MediaStore.EXTRA_OUTPUT, mPhotoUri);
+
+            if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.KITKAT) {
+                List<ResolveInfo> resInfoList = getPackageManager().queryIntentActivities(takePictureIntent, PackageManager.MATCH_DEFAULT_ONLY);
+                for (ResolveInfo resolveInfo : resInfoList) {
+                    String packageName = resolveInfo.activityInfo.packageName;
+                    grantUriPermission(packageName, mPhotoUri, Intent.FLAG_GRANT_WRITE_URI_PERMISSION | Intent.FLAG_GRANT_READ_URI_PERMISSION);
+                }
+            }
+
+            if (takePictureIntent.resolveActivity(getPackageManager()) != null) {
                 startActivityForResult(takePictureIntent, REQUEST_IMAGE_CAPTURE);
+            }
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private Bitmap getBitmapFromUri(Uri uri) {
+        ParcelFileDescriptor parcelFileDescriptor = null;
+        try {
+            parcelFileDescriptor =
+                    getContentResolver().openFileDescriptor(uri, "r");
+            FileDescriptor fileDescriptor = parcelFileDescriptor.getFileDescriptor();
+            Bitmap image = BitmapFactory.decodeFileDescriptor(fileDescriptor);
+            parcelFileDescriptor.close();
+            return image;
+        } catch (Exception e) {
+            Log.e(LOG_TAG, "Failed to load image.", e);
+            return null;
+        } finally {
+            try {
+                if (parcelFileDescriptor != null) {
+                    parcelFileDescriptor.close();
+                }
+            } catch (IOException e) {
+                e.printStackTrace();
+                Log.e(LOG_TAG, "Error closing ParcelFile Descriptor");
             }
         }
     }
@@ -344,63 +453,35 @@ public class EditorActivity extends AppCompatActivity implements LoaderManager.L
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         // grab image from camera
-        if (requestCode == REQUEST_IMAGE_CAPTURE && resultCode == RESULT_OK) {
-            Bundle extras = data.getExtras();
-            mImageBitmap = (Bitmap) extras.get("data");
-            mItemPicture.setImageBitmap(mImageBitmap);
+        if (requestCode == REQUEST_IMAGE_CAPTURE) {
+            if (resultCode == RESULT_OK) {
+                Bitmap bitmap = getBitmapFromUri(mPhotoUri);
+                mItemPicture.setImageBitmap(bitmap);
+                mPhotoLoaded = true;
+            } else { // Result was a failure
+                Toast.makeText(this, "Picture wasn't taken!", Toast.LENGTH_SHORT).show();
+            }
         }
         // grab image from gallery
         if (requestCode == SELECT_IMAGE_FROM_GALLERY && resultCode == RESULT_OK) {
-            Bundle extras = data.getExtras();
-            try {
-                mImageBitmap = MediaStore.Images.Media.getBitmap(getContentResolver(), data.getData());
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-            mImageBitmap = (Bitmap) extras.get("data");
-            mItemPicture.setImageBitmap(mImageBitmap);
-        }
-    }
-
-    private File createImageFile() throws IOException {
-        String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
-        String imageFileName = "JPEG_" + timeStamp + "_";
-        File storageDir = getExternalFilesDir(Environment.DIRECTORY_PICTURES);
-        File image = File.createTempFile(
-                imageFileName,
-                ".jpg",
-                storageDir
-        );
-
-        mCurrentPhotoPath = image.getAbsolutePath();
-        return image;
-    }
-
-    @Override
-    protected void onSaveInstanceState(Bundle outState) {
-        super.onSaveInstanceState(outState);
-        outState.putParcelable("thumbnail", mImageBitmap);
-    }
-
-    @Override
-    protected void onRestoreInstanceState(Bundle savedInstanceState) {
-        super.onRestoreInstanceState(savedInstanceState);
-        if(savedInstanceState.containsKey("thumbnail")) {
-            mImageBitmap = savedInstanceState.getParcelable("thumbnail");
-            mItemPicture.setImageBitmap(mImageBitmap);
+            mPhotoUri = data.getData();
+            Bitmap bitmap = getBitmapFromUri(mPhotoUri);
+            mItemPicture.setImageBitmap(bitmap);
+            mPhotoLoaded = true;
         }
     }
 
     public void openGallery(View view) {
-        System.out.println("<<<<<<<<<  OPEN GALLERY   >>>>>>>>>>>");
-        try {
-            Intent intent = new Intent();
-            intent.setType("image/*");
-            intent.setAction(Intent.ACTION_GET_CONTENT);
-            startActivityForResult(Intent.createChooser(intent, "Select Picture"), SELECT_IMAGE_FROM_GALLERY);
-        }catch (Exception ex){
-            Log.e("OPEN GALLERY",ex.toString());
-            ex.printStackTrace();
+        Intent intent;
+
+        if (Build.VERSION.SDK_INT < 19) {
+            intent = new Intent(Intent.ACTION_GET_CONTENT);
+        } else {
+            intent = new Intent(Intent.ACTION_OPEN_DOCUMENT);
+            intent.addCategory(Intent.CATEGORY_OPENABLE);
         }
+
+        intent.setType("image/*");
+        startActivityForResult(Intent.createChooser(intent, "Select Picture"), SELECT_IMAGE_FROM_GALLERY);
     }
 }
