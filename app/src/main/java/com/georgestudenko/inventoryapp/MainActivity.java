@@ -52,6 +52,15 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
             }
         });
 
+        mListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                Intent intent = new Intent(getBaseContext(),EditorActivity.class);
+                intent.setData(ContentUris.withAppendedId(InventoryContract.InventoryEntry.CONTENT_URI,id));
+                startActivity(intent);
+            }
+        });
+
         getSupportLoaderManager().initLoader(LOADER_ID,null,this);
     }
 
