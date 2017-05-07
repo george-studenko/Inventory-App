@@ -137,6 +137,7 @@ public class EditorActivity extends AppCompatActivity implements LoaderManager.L
     protected void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
         outState.putParcelable("thumbnail", mImageBitmap);
+        outState.putString("mUri" , mPhotoUri.toString());
     }
 
     @Override
@@ -145,6 +146,7 @@ public class EditorActivity extends AppCompatActivity implements LoaderManager.L
         if(savedInstanceState.containsKey("thumbnail")) {
             mImageBitmap = savedInstanceState.getParcelable("thumbnail");
             mItemPicture.setImageBitmap(mImageBitmap);
+            mPhotoUri =  savedInstanceState.getParcelable("thumbnail");
         }
     }
 
@@ -270,7 +272,8 @@ public class EditorActivity extends AppCompatActivity implements LoaderManager.L
         mItemPrice.setText(mItem.getPriceToShow());
         mItemQuantity.setText(String.valueOf(mItem.getQuantity()));
         mTotalQuantity = mItem.getQuantity();
-        Bitmap bitmap = getBitmapFromUri(mItem.getPhoto());
+        mPhotoUri = mItem.getPhoto();
+        Bitmap bitmap = getBitmapFromUri(mPhotoUri);
         mItemPicture.setImageBitmap(bitmap);
     }
 
