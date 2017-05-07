@@ -75,16 +75,20 @@ public class InventoryProvider extends ContentProvider {
     @Override
     public int delete(@NonNull Uri uri, @Nullable String selection, @Nullable String[] selectionArgs) {
         SQLiteDatabase db = mDbHelper.getWritableDatabase();
-
+        int deletedRows = 0;
         switch (mUriMatcher.match(uri)){
             case ITEMS:
-                return db.delete(InventoryEntry.TABLE_NAME,null,null);
+                deletedRows = db.delete(InventoryEntry.TABLE_NAME,null,null);
+                break;
             case ITEM_ID:
                 String[] ids = {String.valueOf(ContentUris.parseId(uri))};
-                return db.delete(InventoryEntry.TABLE_NAME,InventoryEntry.COLUMN_ID + "=?",ids);
+                deletedRows = db.delete(InventoryEntry.TABLE_NAME,InventoryEntry.COLUMN_ID + "=?",ids);
+                break;
             default:
                 throw new IllegalArgumentException("Not implemented uri: " + uri);
         }
+        getContext().getContentResolver().notifyChange(uri,null);
+        return  deletedRows;
     }
 
     @Override
